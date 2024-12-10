@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-
 const BookSchema = new mongoose.Schema(
   {
     title: {
@@ -9,7 +8,7 @@ const BookSchema = new mongoose.Schema(
       required: true,
       trim: true,
       minlength: 3,
-      maxlength: 200,
+      maxlength: 250,
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
@@ -23,8 +22,12 @@ const BookSchema = new mongoose.Schema(
       minlength: 10,
       maxlength: 500,
     },
-    rating: { type: Number, min: 0, max: 5 },
-    pages: { type: Number, min: 1, max: 1000 },
+    price: { type: Number, required: true, min: 0 },
+    cover: {
+      type: String,
+      required: true,
+      enum :["soft cover", "hard cover"]
+    }
   },
   {
     timestamps: true,
@@ -39,8 +42,8 @@ function validateCreateBook(book) {
     title: Joi.string().trim().min(3).max(200).required(),
     author: Joi.string().required(),
     description: Joi.string().trim().min(10).max(300).required(),
-    rating: Joi.number().min(1).max(5).required(),
-    pages: Joi.number().min(1).required(),
+    price: Joi.number().required(),
+    cover: Joi.string().valid("soft cover", "hard cover").trim().required(),
   });
   return schema.validate(book);
 }
@@ -51,8 +54,8 @@ function validateUpdateBook(book) {
     title: Joi.string().trim().min(3).max(200),
     author: Joi.string(),
     description: Joi.string().trim().min(10).max(300),
-    rating: Joi.number().min(1).max(5),
-    pages: Joi.number().min(1),
+    price: Joi.number(),
+    cover: Joi.string().valid("soft cover", "hard cover").trim(),
   });
   return schema.validate(book);
 }
