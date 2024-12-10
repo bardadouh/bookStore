@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
-const 
 const {
   User,
   validateRegistrationUser,
@@ -38,11 +37,10 @@ router.post(
       username,
       email,
       password: hashedPassword,
-      isAdmin,
     });
 
     const result = await user.save();
-    const token = null;
+    const token = user.generateToken();
 
     const { password: _password, ...other } = result._doc;
 
@@ -75,7 +73,8 @@ router.post(
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) return res.status(400).json({ message: "Invalid email or password" });
-    const token = null;
+
+    const token = user.generateToken();
 
     const { password: _password, ...other } = user._doc;
 

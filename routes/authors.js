@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const asyncHandler = require("express-async-handler");
 const { Author,validateCreateAuthor,validateUpdateAuthor } = require("../models/Author");
+const {
+  verifyUserAndAuthorization,
+  verifyUserAndAdmin,
+} = require("../middlewares/verifyToken");
 /**
  * @desc Get all authors
  * @route /api/authors
@@ -39,10 +43,10 @@ router.get("/:id", asyncHandler(
  * @desc Create new author
  * @route /api/authors
  * @method POST
- * @access public
+ * @access private only admin
  */
 
-router.post("/", asyncHandler(
+router.post("/", verifyUserAndAdmin , asyncHandler(
   async (req, res) => {
   const { error } = validateCreateAuthor(req.body);
 
@@ -66,22 +70,24 @@ router.post("/", asyncHandler(
  * @desc Update a author
  * @route /api/authors/:id
  * @method PUT
- * @access public
+ * @access private only admin
  */
 
-router.put("/:id", asyncHandler(
-  async (req, res) => {
-  const { error } = validateUpdateAuthor(req.body);
+router.put(
+  "/:id",
+  verifyUserAndAdmin,
+  asyncHandler(async (req, res) => {
+    const { error } = validateUpdateAuthor(req.body);
 
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
-  //   if (author) {
-  //     res.status(200).json({ message: "author has been updated" });
-  //   } else {
-  //     res.status(404).json({ message: "author not found" });
-  //   }
+    //   if (author) {
+    //     res.status(200).json({ message: "author has been updated" });
+    //   } else {
+    //     res.status(404).json({ message: "author not found" });
+    //   }
 
     const author = await Author.findByIdAndUpdate(
       req.params.id,
@@ -98,18 +104,21 @@ router.put("/:id", asyncHandler(
     );
 
     res.status(200).json(author);
-}));
+  })
+);
 
 /**
  * @desc Delete a author
  * @route /api/authors/:id
  * @method DELETE
- * @access public
+ * @access private only admin
  */
 
-router.delete("/:id", asyncHandler(
-  async (req, res) => { 
-      const author = await Author.findById(req.params.id);
+router.delete(
+  "/:id",
+  verifyUserAndAdmin,
+  asyncHandler(async (req, res) => {
+    const author = await Author.findById(req.params.id);
 
     if (author) {
       await Author.findByIdAndDelete(req.params.id);
@@ -118,7 +127,8 @@ router.delete("/:id", asyncHandler(
     } else {
       res.status(404).json({ message: "author not found" });
     }
-}));
+  })
+);
 
 
 

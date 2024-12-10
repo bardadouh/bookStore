@@ -6,40 +6,11 @@ const {
   validateCreateBook,
   validateUpdateBook,
 } = require("../models/Book");
+const {
+  verifyUserAndAuthorization,
+  verifyUserAndAdmin,
+} = require("../middlewares/verifyToken");
 
-// const books = [
-//   {
-//     id: 1,
-//     title: "Book 1",
-//     author: "Author 1",
-//     description: "Book 1 description",
-//     publicationDate: "2022-01-01",
-//     isAvailable: true,
-//     genre: "Fiction",
-//     rating: 4.5,
-//     pages: 200,
-//   },
-//   {
-//     id: 2,
-//     title: "Book 1",
-//     author: "Author 1",
-//     description: "Book 1 description",
-//     publicationDate: "2022-01-01",
-//     isAvailable: true,
-//     genre: "Fiction",
-//     rating: 4.5,
-//     pages: 200,
-//   },
-// ];
-
-//Http methodes / verbs
-//rouleback handeler,callback function
-// app.get("/", (req, res) => {
-//   res.send("<h1>Welcome  EXPRESS Js</h1>");
-// });
-// app.post();
-// app.delete();
-// app.put();
 
 /**
  * @desc Get all books
@@ -83,11 +54,12 @@ router.get(
  * @desc Create new book
  * @route /api/books
  * @method POST
- * @access public
+ * @access private only admin
  */
 
 router.post(
   "/",
+  verifyUserAndAdmin,
   asyncHandler(async (req, res) => {
     const { error } = validateCreateBook(req.body);
 
@@ -112,11 +84,12 @@ router.post(
  * @desc Update a book
  * @route /api/books/:id
  * @method PUT
- * @access public
+ * @access private only admin
  */
 
 router.put(
   "/:id",
+  verifyUserAndAdmin,
   asyncHandler(async (req, res) => {
     const { error } = validateUpdateBook(req.body);
 
@@ -146,11 +119,12 @@ router.put(
  * @desc Delete a book
  * @route /api/books/:id
  * @method DELETE
- * @access public
+ * @access private only admin
  */
 
 router.delete(
   "/:id",
+  verifyUserAndAdmin,
   asyncHandler(async (req, res) => {
     const book = await Book.findById(req.params.id);
     if (book) {
